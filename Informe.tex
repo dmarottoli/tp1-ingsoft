@@ -1,0 +1,471 @@
+\documentclass[a4paper, 11pt, spanish]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{caratula}
+\usepackage[spanish, activeacute]{babel}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[left=2cm, right=2cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[all]{xy}
+\usepackage{multicol}
+\usepackage{subfig}
+\usepackage[none]{hyphenat}
+
+\usepackage{cancel}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{color,hyperref}
+
+
+
+%%%%%%%%%%%%%% ALGUNAS MACROS %%%%%%%%%%%%%%
+% For \url{SOME_URL}, links SOME_URL to the url SOME_URL
+\providecommand*\url[1]{\href{#1}{#1}}
+
+% Same as above, but pretty-prints SOME_URL in teletype fixed-width font
+\renewcommand*\url[1]{\href{#1}{\texttt{#1}}}
+
+% Comando para poner el simbolo de Reales
+\newcommand{\real}{\hbox{\bf R}}
+
+\providecommand*\code[1]{\texttt{#1}}
+
+%uso: \ponerGrafico{file}{caption}{scale}{label}
+\newcommand{\ponerGrafico}[4]
+{\begin{figure}[H]
+	\centering
+	\subfloat{\includegraphics[scale=#3]{#1}}
+	\caption{#2} \label{fig:#4}
+\end{figure}
+}
+
+
+\materia{Ingenier\'ia de Software I}
+
+\titulo{Trabajo Pr\'actico 1 - An\'alisis preliminar del sistema de software para la Red de Ciclov\'ias de Mar Chiquita}
+\fecha{28 de Abril de 2014}
+\grupo{Grupo n\'umero 5}
+\integrante{\'Alvarez, Mat\'ias}{90/12}{matyy.vp@hotmail.com}
+\integrante{Furman, Dami\'an}{936/11}{damian.a.furman@gmail.com}
+\integrante{Litwak, Brian}{241/12}{brianlitwak@gmail.com}
+\integrante{Marottoli, Daniela}{42/10}{dani.marottoli@gmail.com}
+\integrante{Zanitti, Gast\'on }{58/10}{gzanitti@gmail.com}
+
+\include{templates}
+
+\begin{document}
+\pagestyle{myheadings}
+\maketitle
+%\markboth{Ingenier\'ia de Software I}{Red de Ciclov\'ias}
+
+\thispagestyle{empty}
+\tableofcontents
+
+%\setcounter{section}{-1}
+\newpage
+
+\section{Introducción}
+
+En el siguiente trabajo práctico se buscará desarrollar un posible sistema de Software para resolver problemas del Sistema de Ciclovías de Mar Chiquita encargado por el gobierno municipal. El software busca ofrecer distintas opciones para la administración de usuarios, el retiro y la devolución de las bicicletas, la reposición ordinaria y extraordinaria de las mismas a través de un sistema de camiones, el soporte informático para un sistema de penalizaciones cuando el usuario incumple con los tiempos de la entrega de las bicicletas y el análisis de datos y el manejo de estadísticas para mejorar el sistema a futuro y para ayudar a elaborar políticas para mejorar la salud.\\
+
+El sistema busca brindar distintas opciones con el objetivo de mantener el sistema funcionando aún ante la caida de la conexión de la red o de internet. También busca ofrecer distintas opciones de reposición para que ésta sea por un lado, lo más automatizada e independiente del empleado posible, pero a su vez, que exista la posibilidad de solicitar una reposición extraordinaria frente a una necesidad específica. Por otro lado, el sistema ofrece un sistema de consulta de disponibilidad por estación para que el usuario pueda saber de antemano las opciones que tiene de solicitar una bicicleta. Y además, ofrece una arquitectura que soporta la incorporación de un sistema de penalización del usuario cuando este no cumple con los horarios para la devolución de las bicicletas.\\
+
+
+Para que el sistema funcione aún ante la caída de la red, se incorpora tanto un mecanismo de retiro y devolución online a través de una interfaz web conectada con una base de datos centralizada como un protocolo para el retiro y devolución de bicicletas de manera offline a través de un operador telefónico que carga los datos en la base de datos sin necesidad de conexión a través de internet.\\
+
+
+También implementa dos mecanismos de reposición de bicicletas: uno ordinario que envía automá- ticamente una solicitud de reposición cuando observa que el stock está por debajo de un determinado umbral que se calcula en función de la ubicación de la estación de entrega de bicicletas y el horario (por ejemplo, garantizando que las estaciones del microcentro tengan más cantidad de bicicletas en hora pico). Y también uno extraordinario que permite realizar una solicitud de bicicletas de manera manual para afrontar necesidades extraordinarias (como podría ser por ejemplo, un paro de colectivos que haga aumentar la demanda sólo en un momento específico sin continuidad en el tiempo).\\
+
+%Finalmente, el sistema incorpora la constatación de la ausencia de penalización dentro del proceso de validación de un usuario. También prevee el cálculo de tiempo entre el retiro y la devolución de una bicicleta y el aviso de la sanción cuando el usuario finalmente la devuelve.
+
+%Finalmente, el sistema tiene incorporada una tabla que contiene a los usuarios penalizados. Pero éste no es el encargado de penalizar a los usuarios, sino que delega esta responsabilidad en el departamento de penalización del Gobierno de Mar Chiquita. Es decir: el sistema de ciclovías marca a un usuario como penalizado automáticamente (cuando éste no devuelve la bicicleta a tiempo) y lo agrega en su tabla. Periódicamente, le envía al departamento de penalización los usuarios que fueron penalizados desde el último envío de datos (para que el Gobierno se encargue de multarlos como se corresponda). A su vez, el sistema del Gobierno le manda a nuestro sistema los usuarios que han saldado su penalización para que éstos sean quitados de la tabla.
+
+
+El objetivo final de nuestro sistema es garantizar el uso de un medio de transporte alternativo y popular, reducir la cantidad de automóviles particulares en circulación, reducir el colapsamiento de la red de transporte público y mejorar la salud de la pobliación que tiene sobrepeso.\\
+
+
+Al finalizar nuestro informe se presentarán distintos escenarios que ejemplifican un funcionamiento característico de nuestro sistema y el manejo de distintas situaciones complejas o problemáticas que puedan surgir.
+
+\newpage
+\section{Diagrama de Contexto}
+A continuación se presentará el Digrama de Contexto dividido en agentes para su mejor comprensión y explicación:\\
+
+\subsection{Agentes: Sistema, usuario, empleado}
+
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/contexto_empleado_usuario.png}}
+ 
+ 
+Comencemos por los agentes \textit{usuario} y \textit{sistema de ciclovías}. Los únicos fenómenos que comparten están relacionados con el registro en la página web (incluida dentro del sistema). En primera instancia el usuario se registra en el formulario web, y luego el sistema le informa el resultado del registro (tanto éxito como fracas).\\
+ 
+Luego, encontramos las interacciones entre el \textit{usuario} y el \textit{empleado de la terminal}, que podemos dividir en tres grupos. El primero es la solicitud de bicicleta por parte del usuario, y luego la entrega de bicicleta por parte del emplelado. El segundo es la identificación: el empleado le pide que se identifique y el usuario se identifica. El tercero es la devolución de la bicicleta, que se produce del usuario al empleado.\\
+
+Y para finalizar el análisis de la imagen, veamos los fenómenos que ocurren entre el \textit{empleado} y el \textit{sistema de ciclovías}:\\
+
+- El empleado consulta en el sistema si el usuario está penalizado (este fenómeno se produce antes de hacer entrega de la bicicleta). El sistema de ciclovías, busca en la base de datos interna si dicho usuario se encuentra penalizado y se lo informa al empleado.\\
+
+- El empleado consulta si el número de bicicleta que devuelve un usuario es el mismo que figura en la base de datos (es decir, que el usuario devuelva la misma bicicleta que se llevó). El sistema informa si coinciden ambos números.\\
+
+- El empleado consulta si el usuario que quiere retirar una bicicleta tiene una en su poder (es decir, que no saque una bicicleta si ya posee una) y el sistema lo informa.\\
+
+- Cuando se repone el stock en la terminal por la llegada de un camión con nuevas bicicletas, el empleado debe actualizarlo en el sistema.\\
+
+- El sistema le informa al empleado que se está quedando sin stock y que debe reponer las bicicletas. Este fenómeno se dispara cuando el sistema observa que el stock de bicicletas está por debajo del umbral. Luego abordaremos con más exactitud el cálculo del umbral.\\
+
+- El empleado ingresa en el sistema la devolución de una bicicleta por parte de un usuario, y el sistema le informa si fue o no correcta la devolución.\\
+
+- El empleado registra en el sistema la entrega de una bicicleta a un usuario, y el sistema informa si fue o no correcta la entrega.\\
+
+- El empleado consulta en el sistema si la identificación que proporcionó el usuario es correcta (es decir, que está registrado en el sistema). Éste le informa luego si está o no registrado.\\
+
+\subsection{Agentes: sistema, empleado, empleado de la central}
+
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/contexto_empleado_central.png}}
+
+Los fenómenos que ocurren entre el \textit{empleado} y el \textit{empleado de la central} son muy parecidos a los que mencionamos antes entre el empleado y el sistema. Esto sucede ya que las interacciones entre ellos ocurren cuando alguna de las terminales se queda sin conexión, y el empleado de la central es la única posibilidad para almacenar los datos en el sistema. Entonces los fenómenos coinciden en su mayoría, y se agrega además la realización y recepción de la llamada teléfonica entre ambos empleados.\\
+
+Esto mismo sucede con los fenómenos entre el \textit{empleado central} y el \textit{sistema de ciclovías}. Coinciden en su totalidad con los fenómenos entre el empleado y el sistema.\\
+
+\subsection{Agentes: sistema, empleado, sistema de penalización, persona, puesto camión, gobierno municipal}
+
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/contexto_persona_penalizacion.png}}
+
+Entre el agente \textit{persona} y el \textit{sistema de ciclovías}, los fenómenos ocurrentes están relacionados con el stock de bicis. Es decir, si una persona cualquiera (no necesariamente debe estar registrada en el sistema) quiere consultar el stock de las bicicletas en alguna terminal, puede hacerlo consultando en la página web del sistema.\\
+
+Luego, en cuanto al \textit{Departamento de penalización}, éste le envía a nuestro sistema una actualización periódica de datos con los usuarios que fueron despenalizados en el último tiempo. A su vez, el sistema le envía al departamento los usuarios que fueron penalizados.\\
+
+El agente \textit{Gobierno municipal} presenta los siguientes fenómenos: en primer lugar, es el encargado de reponer los folletos para mejorar la salud en todas las terminales. Además, va a ser quien analice los datos históricos que provea el sistema, es por esto que debe poder consultarlos al sistema y éste debería poder brindárselos.\\
+
+Finalmente, falta analizar el agente \textit{Puesto de camión}. Éste es avisado tanto por el sistema como por el empleado de la falta de stock en alguna terminal. Si el aviso proviene del empleado, es un aviso extraordinario, y si proviene del sistema es ordinario (como se explicó en la introducción).\\
+
+ \newpage
+\section{Objetivos}
+A continuación vamos a presentar el Modelo de Objetivos dividido en distintas secciones para su mejor comprensión y explicación:
+
+\subsection{Objetivo Central}
+(COPIAR IMÁGEN DE OBJETIVO PRINCIPAL JUNTO CON LOS SUBOBJETIVOS INMEDIATAMENTE INFERIORES. LOS OBJETIVOS COMO MEJORAR LA SALUD O DESCOMPRIMIR EL TRÁFICO SE DEBEN AGREGAR ENTEROS YA QUE SE EXPLICAN POR COMPLETO EN ESTA SECCIÓN)
+
+El objetivo principal de nuestro sistema es “Lograr el uso del transporte alternativo y popular, reducir la cantidad de automóviles particulares en circulación, reducir el colapso de la red de transporte público y mejorar la salud de la población con sobrepeso”. Este objetivo se refina 
+
+\newpage
+\section{Escenarios}
+A continuación vamos a describir una serie de escenarios informales donde se ejemplifican situaciones hipotéticas (pero representativas) del funcionamiento esperado del sistema propuesto.
+Comenzamos con un par de escenarios sencillos, los cuales podemos llamar escenarios felices ya que se logra lo que se desea hacer.
+
+\subsection{Registración exitosa del usuario en la página web}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\cline{1-2}
+\textbf{Usuario} & \textbf{Sistema} \\ \cline{1-2}
+Entra a la página web & \\ \cline{1-2}
+Completa formulario de inscripción y hace click en registrar& \\ \cline{1-2}
+ &Verifica los datos del nuevo usuario \\ \cline{1-2}
+ &Informa el éxito de la registración\\ \cline{1-2}
+\end{tabular}
+
+\endgroup
+
+\subsection{Retiro de bicicleta del usuario en un puesto de bicicletas}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado sin multas ni bicicletas en su poder & \\ \cline{1-3}
+ & & Verifica si existe el usuario, y si tiene bicicletas o multas en su poder \\ \cline{1-3}
+ & & Informa que existe el usuario y que no tiene bicicletas ni multas en su poder \\ \cline{1-3}
+ & Entrega la bicicleta al usuario &    \\ \cline{1-3}
+ & Confirma en el sistema que el usuario se llevo una bicicleta &    \\ \cline{1-3}
+ &  & Registra que el usuario se llevo una bicicleta \\ \cline{1-3}
+Se lleva la bicicleta & &    \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\subsection{Consulta de cantidad de bicicletas en una determinada sucursal por parte del usuario en la página web}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\cline{1-2}
+\textbf{Usuario} & \textbf{Sistema} \\ \cline{1-2}
+Entra a la página web & \\ \cline{1-2}
+Elige la sucursal donde desea saber la cantidad de bicicletas y hace click en Consultar& \\ \cline{1-2}
+ &Consulta e informa la cantidad de bicicletas que hay en la sucursal seleccionada por el usuario \\ \cline{1-2}
+\end{tabular}
+
+\endgroup
+
+\subsection{Devolución de bicicleta de parte de un usuario en un puesto de bicicletas durante el tiempo previsto}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Llega al puesto e informa que quiere devolver una bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado con una bicicleta en su poder & \\ \cline{1-3}
+ & & Verifica si existe el usuario, y si tiene bicicletas en su poder \\ \cline{1-3}
+ & & Informa que existe el usuario y que tiene una bicicleta en su poder \\ \cline{1-3}
+ & Consulta la identificación de la bicicleta retirada por el usuario en el sistema &    \\ \cline{1-3}
+ & & Consulta e informa la identificación de la bicicleta retirada por el usuario \\ \cline{1-3}
+ & Valida que la bicicleta entregada por el usuario sea la misma que se le fue otorgada &  \\ \cline{1-3}
+ & Recibe la bicicleta del usuario &    \\ \cline{1-3}
+ & Confirma en el sistema que el usuario devuelve una bicicleta &    \\ \cline{1-3}
+ & & Registra que el usuario devuelve una bicicleta  \\ \cline{1-3}
+ & & Verifica si el usuario devuelve la bicicleta durante el tiempo estipulado  \\ \cline{1-3}
+ & & Informa que el usuario no tiene multas en su poder  \\ \cline{1-3}
+ & Comunica al usuario que no tiene multas en su poder &    \\ \cline{1-3}
+Se retira & &    \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\vspace*{0.8cm}
+
+Ahora que entendemos cómo se comporta el sistema ante situaciones felices, veremos cómo se comporta el sistema ante situaciones donde surge algún problema, sea desde un desperfecto técnico hasta el propio error humano. 
+Arranquemos con posibles escenarios donde se presenta el error humano, pero no ocurre ningún desperfecto técnico.
+
+\subsection{Usuario intenta registrarse con datos inválidos}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\cline{1-2}
+\textbf{Usuario} & \textbf{Sistema} \\ \cline{1-2}
+Entra a la página web & \\ \cline{1-2}
+Completa formulario de inscripción y hace click en registrar& \\ \cline{1-2}
+ &Verifica los datos del nuevo usuario. Puede suceder que el documento ya figure registrado con otro usuario o el documento sea un numero inválido \\ \cline{1-2}
+ &Informa el fracaso de la registración\\ \cline{1-2}
+\end{tabular}
+
+\endgroup
+
+\subsection{El usuario se identifica incorrectamente en el puesto de bicicletas al solicitar una bicicleta}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento. En caso de no serlo, le informa al usuario lo sucedido y finaliza el pedido de bicicleta. Caso contrario, verifica en el sistema si el usuario existe & \\ \cline{1-3}
+ & & Verifica si existe el usuario e informa que no es un usuario registrado \\ \cline{1-3}
+ & Le informa al usuario que primero se tiene que registrar &  \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\subsection{Un usuario multado intenta retirar una bicicleta en el puesto de bicicletas}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+    
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado sin multas ni bicicletas en su poder & \\ \cline{1-3}
+ & & Verifica si existe el usuario, y si tiene bicicletas o multas en su poder \\ \cline{1-3}
+ & & Informa que existe el usuario pero que tiene multas en su poder \\ \cline{1-3}
+ & Le informa al usuario que está multado y no puede retirar bicicletas & \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\subsection{Un usuario que ya tiene una bicicleta en su poder intenta retirar otra bicicleta en un puesto de bicicletas}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado sin multas ni bicicletas en su poder & \\ \cline{1-3}
+ & & Verifica si existe el usuario, y si tiene bicicletas o multas en su poder \\ \cline{1-3}
+ & & Informa que existe el usuario, no tiene multas en su poder pero ya tiene una bicicleta en su poder \\ \cline{1-3}
+ & Le informa al usuario que ya tiene una bicicleta en su poder y no puede retirar bicicletas hasta devolver la que tiene & \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\subsection{Devolución de bicicleta de parte de un usuario en un puesto de bicicletas luego del tiempo previsto}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Llega al puesto e informa que quiere devolver una bicicleta & &\\ \cline{1-3}
+ & Solicita identificación &    \\ \cline{1-3}
+Informa identificación y muestra documento & & \\ \cline{1-3}
+ & Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado con una bicicleta en su poder & \\ \cline{1-3}
+ & & Verifica si existe el usuario, y si tiene bicicletas en su poder \\ \cline{1-3}
+ & & Informa que existe el usuario y que tiene una bicicleta en su poder \\ \cline{1-3}
+ & Valida que la bicicleta entregada por el usuario sea la misma que se le fue otorgada & \\ \cline{1-3}
+ & Recibe la bicicleta del usuario & \\ \cline{1-3}
+ & Confirma en el sistema que el usuario devuelve una bicicleta & \\ \cline{1-3}
+ & & Registra que el usuario se llevo una bicicleta \\ \cline{1-3}
+ & & Verifica si el usuario devuelve la bicicleta durante el tiempo estipulado \\ \cline{1-3}
+ & & Informa que el usuario devuelve la bicicleta luego del tiempo provisto y que tiene una nueva multa\\ \cline{1-3}
+ & Comunica al usuario que devuelve la bicicleta luego del tiempo provisto y que tiene una nueva multa & \\ \cline{1-3}
+Se retira & & \\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\vspace*{1cm}
+
+Presentaremos a continuación escenarios donde se hacen presentes los desperfectos técnicos como por ejemplo no tener internet o falla en un disco rígido.
+
+\subsection{Retiro de bicicleta del usuario en un puesto de bicicletas donde no hay internet}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{3cm}|p{4cm}|p{4cm}|p{4cm}|}
+\cline{1-4}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Empleado de la central} & \textbf{Sistema} \\ \cline{1-4}
+Solicita bicicleta& & & \\ \cline{1-4}
+& Solicita identificación & & \\ \cline{1-4}
+Informa identificación y muestra documento & & & \\ \cline{1-4}
+& Verifica que la identificación sea la misma que el documento y consulta al empleado de la central si es un usuario registrado sin multas ni bicicletas en su poder & & \\ \cline{1-4}
+& & Se fija en el sistema lo pedido por el empleado del puesto & \\ \cline{1-4}
+& & & Verifica si existe el usuario, y si tiene bicicletas o multas en su poder \\ \cline{1-4}
+& & & Informa que existe el usuario y que no tiene bicicletas ni multas en su poder\\ \cline{1-4}
+& & Le comunica al empleado del puesto que existe el usuario, que no tiene bicicletas ni multas en su poder & \\ \cline{1-4}
+& Entrega la bicicleta al usuario & & \\ \cline{1-4}
+& Confirma al empleado de la central  que el usuario se llevo una bicicleta & & \\ \cline{1-4}
+& & Registra en el sistema que el usuario retiró la bicicleta & \\ \cline{1-4}
+& & & Registra que el usuario se llevo una bicicleta \\ \cline{1-4}
+Se lleva la bicicleta & & & \\ \cline{1-4}
+\end{tabular}
+
+\endgroup
+
+\subsection{Devolución de bicicleta del usuario luego del tiempo estipulado en un puesto de bicicletas donde no hay internet}
+
+La comunicación entre el empleado del puesto y el empleado de la central es telefónica.
+
+\begingroup
+    \fontsize{8pt}{10pt}\selectfont
+    
+\begin{tabular}{|p{3cm}|p{4cm}|p{4cm}|p{4cm}|}
+\cline{1-4}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Empleado de la central} & \textbf{Sistema} \\ \cline{1-4}
+Llega al puesto e informa que quiere devolver una bicicleta & & & \\ \cline{1-4}
+& Solicita identificación & & \\ \cline{1-4}
+Informa identificación y muestra documento & & & \\ \cline{1-4}
+& Verifica que la identificación sea la misma que el documento y consulta al empleado de la central si es un usuario registrado con una bicicleta en su poder & & \\ \cline{1-4}
+& & Verifica en el sistema si el usuario esta registrado y tiene una bicicleta en su poder & \\ \cline{1-4}
+& & & Verifica si existe el usuario, y si tiene bicicletas en su poder \\ \cline{1-4}
+& & & Informa que existe el usuario y que tiene una bicicleta en su poder \\ \cline{1-4}
+& & Le comunica al empleado de la sucursal que existe el usuario y que tiene una bicicleta en su poder & \\ \cline{1-4}
+& Consulta la identificación de la bicicleta retirada por el usuario al empleado de la central & & \\ \cline{1-4}
+& & Consulta la identificación de la bicicleta retirada por el usuario en el sistema & \\ \cline{1-4}
+& & & Consulta e informa la identificación de la bicicleta retirada por el usuario \\ \cline{1-4}
+& & Le informa al empleado del puesto la identificación de la bicicleta retirada por el usuario & \\ \cline{1-4}
+& Valida que la bicicleta entregada por el usuario sea la misma que se le fue otorgada & & \\ \cline{1-4}
+& Recibe la bicicleta del usuario & & \\ \cline{1-4}
+& Confirma al empleado de la central que el usuario devuelve una bicicleta & & \\ \cline{1-4}
+& & Registra en el sistema que el usuario devuelve la bicicleta & \\ \cline{1-4}
+& & & Registra que el usuario devuelve una bicicleta \\ \cline{1-4}
+& & & Verifica si el usuario devuelve la bicicleta durante el tiempo estipulado \\ \cline{1-4}
+& & & Informa que el usuario devuelve la bicicleta luego del tiempo provisto y que tiene una nueva multa \\ \cline{1-4}
+& & Le comunica al empleado del puesto que el usuario está multado porque devolvió tarde la bicicleta & \\ \cline{1-4}
+& Comunica al usuario que devuelve la bicicleta luego del tiempo provisto y que tiene una nueva multa & & \\ \cline{1-4}
+Se retira& & & \\ \cline{1-4}
+\end{tabular}
+
+\endgroup
+
+
+\vspace*{1cm}
+
+Observemos por último dos casos de disponibilidad. Veamos la reposición de bicicletas ordinaria y extraordinaria, ya definidas previamente en el informe.\\
+
+Primero repasemos qué es cada término:\\
+- Reposición de bicicletas ordinario: envía automáticamente una solicitud de reposición cuando observa que el stock está por debajo de un determinado umbral que se calcula en función de la ubicación de la estación de entrega de bicicletas y el horario.\\
+- Reposición de bicicletas extraordinario: consiste en realizar una solicitud de bicicletas de manera manual para afrontar necesidades extraordinarias (como ser, por ejemplo, que una cantidad enorme y no predecible de usuarios solicite bicicletas en una misma sucursal).\\
+
+Ahora que tenemos los términos bien definidos, veamos los siguientes escenarios.
+Para ambos escenarios, supondremos que los usuarios son correctos y que no existe ni error humano por parte del empleado o usuario ni falla técnica. Es decir: el usuario esta registrado, no tiene bicicletas en su poder, ni multas y el sistema no esta caído (tengo luz, internet, los discos rígidos funcionan).\\
+
+\subsection{Retiro de bicicleta del usuario en un puesto de bicicletas en hora pico generando stock por debajo del umbral - Reposición de bicicletas ordinario}
+
+Notar que en este escenario se puede parametrizar la noción del tiempo (hora pico) ya que en realidad el umbral es una función que dependiendo del horario, tiene otra cantidad distinta de bicicletas que debería tener el puesto de bicicletas. Lo mismo sucede con el puesto de bicicletas: esta función también toma a qué sucursal pertenece, logrando que las sucursales del centro y periferia sean distinguibles por sus respectivas necesidades.
+
+\vspace*{0.7cm}
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta&&\\ \cline{1-3}
+&Solicita identificación&\\ \cline{1-3}
+Informa identificación y muestra documento&&\\ \cline{1-3}
+&Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado sin multas ni bicicletas en su poder&\\ \cline{1-3}
+&&Verifica si existe el usuario, y si tiene bicicletas o multas en su poder\\ \cline{1-3}
+&&Informa que existe el usuario y que no tiene bicicletas ni multas en su poder\\ \cline{1-3}
+&Entrega la bicicleta al usuario&\\ \cline{1-3}
+&Confirma en el sistema que el usuario se llevo una bicicleta&\\ \cline{1-3}
+&&Registra que el usuario se llevo una bicicleta\\ \cline{1-3}
+Se lleva la bicicleta&&\\ \cline{1-3}
+&&Al descontar una bicicleta del stock, el sistema detecta que el stock se encuentra por debajo del umbral de hora pico para esa sucursal, de forma automática. Por ende, el mismo da aviso al puesto de camiones informando la falta de stock.\\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+\subsection{Retiro de bicicleta del usuario en un puesto de bicicletas en cualquier horario en un día con paro de colectivos - Reposición de bicicletas extraordinario}
+
+Para este escenario, la misma aclaración que en el escenario anterior. Se puede parametrizar tanto el horario como la sucursal.
+
+\begingroup
+    \fontsize{8pt}{12pt}\selectfont
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\cline{1-3}
+\textbf{Usuario} & \textbf{Empleado del puesto} & \textbf{Sistema} \\ \cline{1-3}
+Solicita bicicleta&&\\ \cline{1-3}
+&Solicita identificación&\\ \cline{1-3}
+Informa identificación y muestra documento&&\\ \cline{1-3}
+&Verifica que la identificación sea la misma que el documento y consulta al sistema si es un usuario registrado sin multas ni bicicletas en su poder&\\ \cline{1-3}
+&&Verifica si existe el usuario, y si tiene bicicletas o multas en su poder\\ \cline{1-3}
+&&Informa que existe el usuario y que no tiene bicicletas ni multas en su poder\\ \cline{1-3}
+&Entrega la bicicleta al usuario&\\ \cline{1-3}
+&Confirma en el sistema que el usuario se llevo una bicicleta&\\ \cline{1-3}
+&&Registra que el usuario se llevo una bicicleta\\ \cline{1-3}
+Se lleva la bicicleta&&\\ \cline{1-3}
+&Al asentar el retiro, el empleado se da cuenta que hay una mayor demanda de bicicletas de lo normal (esto es, mayor al promedio de demanda registrado estadísticamente) generando que haya una menor cantidad de bicicletas que cualquier otro día, en el mismo horario. Por ende, el empleado le informa al puesto de camiones la necesidad de más bicicletas. &\\ \cline{1-3}
+\end{tabular}
+
+\endgroup
+
+
+\end{document}
