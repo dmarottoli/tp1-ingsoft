@@ -93,7 +93,7 @@ Al finalizar nuestro informe se presentarán distintos escenarios que ejemplific
 \section{Diagrama de Contexto}
 A continuación se presentará el Digrama de Contexto dividido en agentes para su mejor comprensión y explicación:\\
 
-\subsection{Agentes: Sistema, usuario, empleado}
+\subsection{Agentes: sistema, usuario, empleado}
 
 \centerline{\includegraphics[width=1\textwidth]{./imagenes/contexto_empleado_usuario.png}}
  
@@ -145,9 +145,155 @@ Finalmente, falta analizar el agente \textit{Puesto de camión}. Éste es avisad
 A continuación vamos a presentar el Modelo de Objetivos dividido en distintas secciones para su mejor comprensión y explicación:
 
 \subsection{Objetivo Central}
-(COPIAR IMÁGEN DE OBJETIVO PRINCIPAL JUNTO CON LOS SUBOBJETIVOS INMEDIATAMENTE INFERIORES. LOS OBJETIVOS COMO MEJORAR LA SALUD O DESCOMPRIMIR EL TRÁFICO SE DEBEN AGREGAR ENTEROS YA QUE SE EXPLICAN POR COMPLETO EN ESTA SECCIÓN)
 
-El objetivo principal de nuestro sistema es “Lograr el uso del transporte alternativo y popular, reducir la cantidad de automóviles particulares en circulación, reducir el colapso de la red de transporte público y mejorar la salud de la población con sobrepeso”. Este objetivo se refina 
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/1.png}}
+
+\vspace*{0.7cm}
+
+El objetivo principal de nuestro sistema es “Lograr el uso del transporte alternativo y popular, reducir la cantidad de automóviles particulares en circulación, reducir el colapso de la red de transporte público y mejorar la salud de la población con sobrepeso”. Este objetivo se refina en cuatro subobjetivos: el primero consiste en lograr el uso de un sistema que maneje eficientemente la red de ciclovías. Este subobjetivo será abarcado con mayor especificidad en un item posterior. \\
+
+Luego podemos observar el objetivo que consiste en lograr el uso de un medio de transporte público y popular. Frente a este objetivo también hay una presunción del dominio que dice que el uso de transporte gratuito hace que el transporte sea popular.\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.6\textwidth]{./imagenes/2.png}}
+\vspace*{0.7cm}
+
+El tercero consiste en lograr reducir el tráfico. Para esto se plantea lograr reducir la cantidad de automóviles particulares en circulacion y lograr reducir el colapsamiento de
+la red de transporte público. Existe una presunción sobre el dominio que asume que el uso de un transporte público alternativo al automóvil reduce el uso de los automóviles en general por un lado, y por el otro que el ingreso de un nuevo tipo de transporte público reduce el colapsamiento del transporte público original.\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.9\textwidth]{./imagenes/3.png}}
+\vspace*{0.7cm}
+
+El cuarto objetivo es el de mejorar la salud de la población que tiene sobrepeso. Aqui también hay una presunción del domino que tiene que ver con que el uso de las bicicletas mejora la salud. A su vez, para cumplir este objetivo se plantea realizar un análisis de los datos recolectados para planificar políticas que mejoren la salud como también entregar folletos incentivando el uso de bicicletas en relación con una serie de hábitos para cuidar la salud.
+
+
+\subsection{Lograr uso de un sistema que maneje eficientemente la red de Ciclovías.}
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.9\textwidth]{./imagenes/4.png}}
+\vspace*{0.7cm}
+
+
+\subsubsection{Lograr Retiro de bicicletas:}
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.5\textwidth]{./imagenes/5.png}}
+\vspace*{0.7cm}
+
+El retiro de bicicletas cuenta con dos subobjetivos: por un lado lograr la disponibilidad de las bicicletas y por el otro, lograr el retiro eficaz habiendo disponibilidad.\\
+
+\textbf{Lograr Disponibilidad}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.5\textwidth]{./imagenes/6.png}}
+\vspace*{0.7cm}
+
+Para lograr la disponibilidad el sistema se propone como objetivos lograr la reposición ágil de stock y lograr mejorar el servicio a partir de estadísticas históricas.\\
+
+\textbf{Lograr reposición ágil de Stock}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.8\textwidth]{./imagenes/7.png}}
+\vspace*{0.7cm}
+
+La reposición ágil de stock tiene dos subobjetivos que se complementan mutuamente. Por un lado, se busca implementar una reposición ordinaria y automática del stock, y por el otro, la reposición extraordinaria. Además, observamos dos objetivos blandos que luego explicaremos.
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.9\textwidth]{./imagenes/8.png}}
+\vspace*{0.7cm}
+
+Esta reposición se realiza mediante una alerta automática generada por el sistema. El sistema calcula un umbral de stock insuficiente y chequea el estado del stock actual. Si el stock actual está por debajo del umbral, realiza un pedido al puesto de camiones, generando un ticket en donde se indica donde buscar más bicicletas y a dónde llevarlas. El calculo del umbral se hace automáticamente a través del sistema de ciclovías mediante un algoritmo que actualiza los valores según el día, el horario y la ubicación en base a la demanda esperada (las estaciones del microcentro tendrán un umbral más alto que las de la periferia. A su vez, el umbral aumenta en hora pico los días de semana también dependiendo según la estación). A su vez, el algoritmo puede ser actualizado por el gobierno municipal sobre la base de los estudios estadísticos que ellos realizan en función de ir volviendo más preciso el cálculo automático que realiza el sistema. El ticket generado para el puesto de camiones funciona como un documento 
+para un servicio contratado para el transporte de una carga (las bicis) de un lugar a otro. Forma parte de la presunción de nuestro dominio que ese servicio será brindado con calidad y profesionalismo y por lo tanto que los camiones una vez informados del recorrido a realizar, lo hacen en tiempo óptimo.
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.8\textwidth]{./imagenes/9.png}}
+\vspace*{0.7cm}
+
+Por el otro lado, se busca también implementar una reposición extraordinaria del Stock. Esta reposición extraordinaria es complementaria a la otra reposición y permite que el empleado genere un ticket para el transporte de bicicletas de un puesto a otro a través de una llamada telefónica. El objetivo de este mecanismo es, por un lado, lograr la reposición aún cuando el sitema no tiene una red de conexión disponible Pero por otro lado, es también la necesidad de hacer frente a posibles necesidades extraordinarias que pudieran surgir. Por ejemplo, frente a un eventual paro de colectivos es de esperarse que la demanda de bicicletas crezca más allá de lo normal. Como en principio se basa en la existencia de hechos extraordinarios e infrecuentes, estos no ameritan, por ejemplo, actualizar el umbral para el cálculo del stock, sino realizar por única vez un pedido extraordinario\\
+
+
+Entre la reposición automática y ordinaria y aquella extraordinaria media un objetivo blando: que la reposición de bicicletas debe darse de la manera más organizada y ágil posible. En este caso, quien más colabora para la reposición organizada y ágil es la reposición ordinaria. Sin embargo, media entre ambas un segundo objetivo blando: que la reposición de bicicletas debe realizarse aún cuando no exista ninguna conexión a internet. En este caso, es la reposición extraordinaria la que facilita que se cumpla este objetivo blando.\\
+
+
+\textbf{Mejorar el servicio a partir de estadísticas históricas}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.9\textwidth]{./imagenes/10.png}}
+\vspace*{0.7cm}
+
+Para mejorar el servicio a partir de las estadísticas históricas se busca que el sistema sea capaz de mantener la base de datos actualizada (con las estadísticas), procesar esas estadísticas y realizar un análisis de los datos. \\
+
+\textbf{Lograr retiro eficaz de bicicletas si hay disponibilidad}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.6\textwidth]{./imagenes/11.png}}
+\vspace*{0.7cm}
+
+Hay dos opciones a la hora de lograr el retiro de las bicicletas:\\
+
+\textbf{Lograr retiro de bicicletas online}\\
+
+El retiro de bicicletas online consta de dos grandes procedimientos: la validación por un lado y los procedimientos relativos a la entrega de las bicicletas por el otro.\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.95\textwidth]{./imagenes/12.png}}
+\vspace*{0.7cm}
+
+\textbf{Lograr retiro de bicicletas offline}\\
+
+El retiro de bicicletas offline es una alternativa al retiro online que permite realizar el retiro a pesar de no tener conexión a través de la red. También se divide en dos grandes procedimientos, a grandes rasgos, que consisten en la validación del usuario de manera telefónica por un lado y los procedimientos relativos a la entrega por el otro. La diferencia respecto al retiro online pasa, principalmente, por la necesidad de interactuar de manera telefónica con un empleado de la central que centraliza los datos y actualiza la base de datos para que esté disponible la información al resto de las centrales.\\
+
+Entre el procedimiento de retiro online y offline media un objetivo blando: que el retiro de bicicletas se debe dar de la manera más rápida y ágil posible para evitar colas, amontonamientos de gente y poder atender a los clientes en el menor tiempo posible. El procedimiento de retiro online colabora en mayor medida a este propósito.\\
+
+
+\textbf{Lograr devolución eficaz de las bicicletas}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=0.7\textwidth]{./imagenes/13.png}}
+\vspace*{0.7cm}
+
+
+Al igual que con el retiro, la devolución eficaz de las bicicletas se divide en dos procedimientos complementarios: la devolución online y la devolución offline.
+
+\textbf{Devolución online de las bicicletas}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=1.15\textwidth]{./imagenes/14.png}}
+\vspace*{0.7cm}
+
+En el procedimiento de devolución, además de los procedimientos de validación de usuario y de recepción de la bicicleta (análogos a los procedimientos de validación y retiro en el caso del retiro online) se agrega también la notificación de la penalización en caso de exitir esta. A su vez, la validación del usuario, además de validar su identidad y verificar que el usuario haya realizado un retiro, incluye un procedimiento para verificar el código de la bicicleta y, de esta manera, evitar que el usuario devuelva una bicicleta distinta a la que retiró.\\
+
+\textbf{Devolución offline de las bicicletas}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/15.png}}
+\vspace*{0.7cm}
+
+Realizar la validación del usuario de forma telefónica:\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/16.png}}
+\vspace*{0.7cm}
+
+La devolución offline, al igual que el retiro offline, incorpora un operador telefónico que recibe los llamados del empleado de la estación y permite tanto la validación del usuario como los procedimientos de almacenamiento de los datos de recepción como incluso también la notificación sobre si el usuario queda penalizado en caso de que corresponda.\\
+
+\textbf{Lograr administración de usuarios}\\
+
+\vspace*{0.7cm}
+\centerline{\includegraphics[width=1\textwidth]{./imagenes/17.png}}
+\vspace*{0.7cm}
+
+La administración de usuarios consta de dos objetivos:\\
+
+Lograr Alta de usuario Online:\\
+
+Se busca almacenar los datos del usuario en el sistema para poder utilizarlos para la validación en el caso de querer retirar o devolver una bicicleta. El registro es realizado por el usuario de manera online. A su vez, existe la posibilidad de que el usuario se registre utilizando una computadora disponible en cada una de las estaciones. El sistema no comprueba la validez de los datos ingresados. La validez se realiza durante el proceso de retiro de la bicicleta mediante la presentación del documento de identidad. Si los datos no son válidos, el usuario no logra retirar una bicicleta y por lo tanto es eliminado de la base de usuarios por el mismo sistema de ciclovías luego de un tiempo.\\
+
+Penalización de usuarios:\\
+
+El sistema otorga un soporte para la penalización de usuarios que consiste en detectar los usuarios a penalizar en función del tiempo que tardan en devolver la bicicleta. A su vez, almacena las sanciones aplicadas y actualiza los datos manteniendo una comunicación fluida con el sistema de penalización. Sin embargo, nuestro sistema no se encarga de aplicar la sansión, la cual queda a cargo del Sistema de Penalización que excede el alcance de nuestro programa.\\
+
 
 \newpage
 \section{Escenarios}
